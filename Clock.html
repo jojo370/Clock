@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Weather Clock Dashboard</title>
+
+    <style>
+
+        /* =========================================
+           GLOBAL
+        ========================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+
+            font-family:
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            color: white;
+
+            background:
+                radial-gradient(
+                    circle at 20% 20%,
+                    #173b63 0%,
+                    transparent 35%
+                ),
+
+                radial-gradient(
+                    circle at 80% 80%,
+                    #2b164f 0%,
+                    transparent 35%
+                ),
+
+                #05070d;
+        }
+
+
+        /* =========================================
+           ANIMATED BACKGROUND
+        ========================================= */
+
+        .background {
+            position: fixed;
+
+            width: 100%;
+            height: 100%;
+
+            top: 0;
+            left: 0;
+
+            overflow: hidden;
+
+            pointer-events: none;
+
+            z-index: -1;
+        }
+
+        .orb {
+            position: absolute;
+
+            width: 300px;
+            height: 300px;
+
+            border-radius: 50%;
+
+            filter: blur(80px);
+
+            opacity: 0.25;
+
+            animation:
+                float 12s infinite ease-in-out;
+        }
+
+        .orb:nth-child(1) {
+            background: #00aaff;
+
+            left: -100px;
+            top: 10%;
+        }
+
+        .orb:nth-child(2) {
+            background: #8a2be2;
+
+            right: -100px;
+            top: 50%;
+
+            animation-delay: -4s;
+        }
+
+        .orb:nth-child(3) {
+            background: #00ffcc;
+
+            left: 40%;
+            bottom: -150px;
+
+            animation-delay: -8s;
+        }
+
+        @keyframes float {
+
+            0%, 100% {
+                transform: translate(
+                    0px,
+                    0px
+                );
+            }
+
+            50% {
+                transform: translate(
+                    50px,
+                    -40px
+                );
+            }
+        }
+
+
+        /* =========================================
+           MAIN CONTAINER
+        ========================================= */
+
+        .container {
+            width: min(1100px, 92%);
+
+            margin: auto;
+
+            padding: 50px 0;
+        }
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        header {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 30px;
+        }
+
+        .brand {
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #00d4ff,
+                    #8a2be2
+                );
+
+            font-size: 25px;
+
+            box-shadow:
+                0 0 30px rgba(
+                    0,
+                    212,
+                    255,
+                    0.35
+                );
+        }
+
+        .brand h1 {
+            font-size: 22px;
+
+            letter-spacing: 1px;
+        }
+
+        .brand p {
+            color: #8995aa;
+
+            font-size: 13px;
+
+            margin-top: 3px;
+        }
+
+
+        /* =========================================
+           STATUS
+        ========================================= */
+
+        .status {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: #8d9ab0;
+
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: #00ff9d;
+
+            box-shadow:
+                0 0 12px #00ff9d;
+
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+
+        /* =========================================
+           GLASS CARD
+        ========================================= */
+
+        .glass {
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.055
+                );
+
+            border: 1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.09
+                );
+
+            backdrop-filter: blur(25px);
+
+            -webkit-backdrop-filter: blur(25px);
+
+            border-radius: 25px;
+
+            box-shadow:
+                0 25px 80px
+                rgba(0, 0, 0, 0.35);
+
+            transition:
+                transform 0.3s,
+                border-color 0.3s;
+        }
+
+        .glass:hover {
+            border-color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.18
+                );
+        }
+
+
+        /* =========================================
+           CLOCK
+        ========================================= */
+
+        .clock-card {
+            padding: 55px 30px;
+
+            text-align: center;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .clock-card::before {
+            content: "";
+
+            position: absolute;
+
+            width: 400px;
+            height: 400px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(
+                    0,
+                    212,
+                    255,
+                    0.07
+                );
+
+            filter: blur(80px);
+
+            top: -250px;
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+        }
+
+        #clock {
+            position: relative;
+
+            font-size:
+                clamp(
+                    65px,
+                    11vw,
+                    125px
+                );
+
+            font-weight: 700;
+
+            letter-spacing: 4px;
+
+            line-height: 1;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #b9eaff,
+                    #ffffff
+                );
+
+            -webkit-background-clip: text;
+
+            background-clip: text;
+
+            color: transparent;
+
+            text-shadow:
+                0 0 40px
+                rgba(
+                    0,
+                    212,
+                    255,
+                    0.15
+                );
+        }
+
+        #date {
+            margin-top: 20px;
+
+            color: #94a3b8;
+
+            font-size: 18px;
+
+            letter-spacing: 2px;
+        }
+
+
+        /* =========================================
+           WEATHER HERO
+        ========================================= */
+
+        .weather-card {
+            margin-top: 25px;
+
+            padding: 35px;
+        }
+
+        .weather-top {
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            gap: 20px;
+        }
+
+        .weather-location {
+            color: #94a3b8;
+
+            font-size: 14px;
+
+            margin-bottom: 8px;
+        }
+
+        #weatherDescription {
+            font-size: 27px;
+
+            font-weight: 600;
+        }
+
+        .temperature {
+            font-size: 65px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .weather-icon {
+            font-size: 70px;
+
+            filter:
+                drop-shadow(
+                    0 0 20px
+                    rgba(
+                        255,
+                        255,
+                        255,
+                        0.2
+                    )
+                );
+        }
+
+
+        /* =========================================
+           WEATHER STATS
+        ========================================= */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    1fr
+                );
+
+            gap: 15px;
+
+            margin-top: 30px;
+        }
+
+        .stat {
+            padding: 20px;
+
+            border-radius: 17px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.045
+                );
+
+            border: 1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.06
+                );
+
+            transition:
+                transform 0.25s,
+                background 0.25s;
+        }
+
+        .stat:hover {
+            transform:
+                translateY(-5px);
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.08
+                );
+        }
+
+        .stat-label {
+            color: #7f8ba0;
+
+            font-size: 12px;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            margin-top: 8px;
+
+            font-size: 23px;
+
+            font-weight: 600;
+        }
+
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+            text-align: center;
+
+            margin-top: 25px;
+
+            color: #596579;
+
+            font-size: 12px;
+        }
+
+
+        /* =========================================
+           LOADING
+        ========================================= */
+
+        .loading {
+            animation:
+                loading 1.2s
+                infinite ease-in-out;
+        }
+
+        @keyframes loading {
+
+            0%, 100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 700px) {
+
+            .container {
+                padding: 25px 0;
+            }
+
+            header {
+                align-items: flex-start;
+            }
+
+            .status {
+                display: none;
+            }
+
+            .weather-top {
+                flex-direction: column;
+
+                text-align: center;
+            }
+
+            .temperature {
+                font-size: 55px;
+            }
+
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 400px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .weather-card {
+                padding: 25px;
+            }
+
+            #date {
+                font-size: 14px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================================
+         ANIMATED BACKGROUND
+    ========================================= -->
+
+    <div class="background">
+
+        <div class="orb"></div>
+
+        <div class="orb"></div>
+
+        <div class="orb"></div>
+
+    </div>
+
+
+    <!-- =========================================
+         MAIN
+    ========================================= -->
+
+    <main class="container">
+
+
+        <!-- HEADER -->
+
+        <header>
+
+            <div class="brand">
+
+                <div class="logo">
+                    ⏱
+                </div>
+
+                <div>
+
+                    <h1>
+                        TIME & WEATHER
+                    </h1>
+
+                    <p>
+                        Live dashboard
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="status">
+
+                <span
+                    class="status-dot">
+                </span>
+
+                LIVE
+
+            </div>
+
+        </header>
+
+
+        <!-- CLOCK -->
+
+        <section class="glass clock-card">
+
+            <div id="clock">
+                12:00:00 AM
+            </div>
+
+            <div id="date">
+                Loading date...
+            </div>
+
+        </section>
+
+
+        <!-- WEATHER -->
+
+        <section class="glass weather-card">
+
+
+            <div class="weather-top">
+
+
+                <div>
+
+                    <div class="weather-location">
+
+                        📍
+                        <span id="location">
+                            Loading location...
+                        </span>
+
+                    </div>
+
+
+                    <div id="weatherDescription"
+                         class="loading">
+
+                        Loading weather...
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="weatherIcon"
+                    class="weather-icon">
+
+                    🌤️
+
+                </div>
+
+
+                <div class="temperature">
+
+                    <span id="temperature">
+                        --°
+                    </span>
+
+                    C
+
+                </div>
+
+            </div>
+
+
+            <!-- WEATHER STATS -->
+
+            <div class="stats">
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Feels Like
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="feelsLike">
+
+                        --°C
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Humidity
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="humidity">
+
+                        --%
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Wind
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="wind">
+
+                        -- km/h
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Rain
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="rain">
+
+                        -- mm
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            Weather data updates automatically every
+            10 minutes.
+
+        </footer>
+
+
+    </main>
+
+
+    <script>
+
+        /* =========================================
+           CLOCK
+        ========================================= */
+
+        function updateClock() {
+
+            const now = new Date();
+
+
+            let hours =
+                now.getHours();
+
+            const minutes =
+                now.getMinutes();
+
+            const seconds =
+                now.getSeconds();
+
+
+            // AM / PM
+
+            const ampm =
+                hours >= 12
+                    ? "PM"
+                    : "AM";
+
+
+            // Convert to 12 hour
+
+            hours =
+                hours % 12;
+
+
+            if (hours === 0) {
+                hours = 12;
+            }
+
+
+            // Add leading zeros
+
+            const h =
+                String(hours)
+                .padStart(2, "0");
+
+            const m =
+                String(minutes)
+                .padStart(2, "0");
+
+            const s =
+                String(seconds)
+                .padStart(2, "0");
+
+
+            document
+                .getElementById("clock")
+                .textContent =
+                    `${h}:${m}:${s} ${ampm}`;
+
+
+            // Date
+
+            const date =
+                now.toLocaleDateString(
+                    "en-AU",
+                    {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+
+            document
+                .getElementById("date")
+                .textContent =
+                    date;
+        }
+
+
+        updateClock();
+
+        setInterval(
+            updateClock,
+            1000
+        );
+
+
+        /* =========================================
+           WEATHER
+        ========================================= */
+
+        async function getWeather() {
+
+            // Hervey Bay
+
+            const latitude =
+                -25.29;
+
+            const longitude =
+                152.85;
+
+
+            const url =
+                "https://api.open-meteo.com/v1/forecast" +
+
+                "?latitude=" +
+                latitude +
+
+                "&longitude=" +
+                longitude +
+
+                "&current=" +
+
+                "temperature_2m," +
+                "relative_humidity_2m," +
+                "apparent_temperature," +
+                "precipitation," +
+                "weather_code," +
+                "wind_speed_10m" +
+
+                "&timezone=" +
+                "Australia%2FBrisbane";
+
+
+            try {
+
+                const response =
+                    await fetch(url);
+
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Weather request failed"
+                    );
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                const weather =
+                    data.current;
+
+
+                /* =========================
+                   TEMPERATURE
+                ========================= */
+
+                document
+                    .getElementById(
+                        "temperature"
+                    )
+                    .textContent =
+                        Math.round(
+                            weather.temperature_2m
+                        ) + "°";
+
+
+                /* =========================
+                   FEELS LIKE
+                ========================= */
+
+                document
+                    .getElementById(
+                        "feelsLike"
+                    )
+                    .textContent =
+                        Math.round(
+                            weather.apparent_temperature
+                        ) + "°C";
+
+
+                /* =========================
+                   HUMIDITY
+                ========================= */
+
+                document
+                    .getElementById(
+                        "humidity"
+                    )
+                    .textContent =
+                        weather.relative_humidity_2m
+                        + "%";
+
+
+                /* =========================
+                   WIND
+                ========================= */
+
+                document
+                    .getElementById(
+                        "wind"
+                    )
+                    .textContent =
+                        Math.round(
+                            weather.wind_speed_10m
+                        )
+                        + " km/h";
+
+
+                /* =========================
+                   RAIN
+                ========================= */
+
+                document
+                    .getElementById(
+                        "rain"
+                    )
+                    .textContent =
+                        weather.precipitation
+                        + " mm";
+
+
+                /* =========================
+                   DESCRIPTION
+                ========================= */
+
+                const weatherInfo =
+                    getWeatherInfo(
+                        weather.weather_code
+                    );
+
+
+                document
+                    .getElementById(
+                        "weatherDescription"
+                    )
+                    .textContent =
+                        weatherInfo.name;
+
+
+                document
+                    .getElementById(
+                        "weatherIcon"
+                    )
+                    .textContent =
+                        weatherInfo.icon;
+
+
+                document
+                    .getElementById(
+                        "weatherDescription"
+                    )
+                    .classList
+                    .remove("loading");
+
+
+                document
+                    .getElementById(
+                        "location"
+                    )
+                    .textContent =
+                        "Hervey Bay, Queensland";
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+
+                document
+                    .getElementById(
+                        "weatherDescription"
+                    )
+                    .textContent =
+                        "Weather unavailable";
+
+
+                document
+                    .getElementById(
+                        "weatherIcon"
+                    )
+                    .textContent =
+                        "❌";
+
+            }
+
+        }
+
+
+        /* =========================================
+           WEATHER CODE CONVERTER
+        ========================================= */
+
+        function getWeatherInfo(code) {
+
+            if (code === 0) {
+
+                return {
+                    name: "Clear Sky",
+                    icon: "☀️"
+                };
+
+            }
+
+
+            if (
+                code === 1 ||
+                code === 2
+            ) {
+
+                return {
+                    name: "Partly Cloudy",
+                    icon: "🌤️"
+                };
+
+            }
+
+
+            if (code === 3) {
+
+                return {
+                    name: "Overcast",
+                    icon: "☁️"
+                };
+
+            }
+
+
+            if (
+                code >= 45 &&
+                code <= 48
+            ) {
+
+                return {
+                    name: "Fog",
+                    icon: "🌫️"
+                };
+
+            }
+
+
+            if (
+                code >= 51 &&
+                code <= 55
+            ) {
+
+                return {
+                    name: "Drizzle",
+                    icon: "🌦️"
+                };
+
+            }
+
+
+            if (
+                code >= 56 &&
+                code <= 57
+            ) {
+
+                return {
+                    name: "Freezing Drizzle",
+                    icon: "🌧️"
+                };
+
+            }
+
+
+            if (
+                code >= 61 &&
+                code <= 65
+            ) {
+
+                return {
+                    name: "Rain",
+                    icon: "🌧️"
+                };
+
+            }
+
+
+            if (
+                code >= 66 &&
+                code <= 67
+            ) {
+
+                return {
+                    name: "Freezing Rain",
+                    icon: "🌧️"
+                };
+
+            }
+
+
+            if (
+                code >= 71 &&
+                code <= 77
+            ) {
+
+                return {
+                    name: "Snow",
+                    icon: "❄️"
+                };
+
+            }
+
+
+            if (
+                code >= 80 &&
+                code <= 82
+            ) {
+
+                return {
+                    name: "Rain Showers",
+                    icon: "🌦️"
+                };
+
+            }
+
+
+            if (
+                code >= 85 &&
+                code <= 86
+            ) {
+
+                return {
+                    name: "Snow Showers",
+                    icon: "🌨️"
+                };
+
+            }
+
+
+            if (code >= 95) {
+
+                return {
+                    name: "Thunderstorm",
+                    icon: "⛈️"
+                };
+
+            }
+
+
+            return {
+                name: "Unknown",
+                icon: "🌡️"
+            };
+
+        }
+
+
+        /* =========================================
+           INITIAL WEATHER
+        ========================================= */
+
+        getWeather();
+
+
+        /* =========================================
+           REFRESH WEATHER EVERY 10 MINUTES
+        ========================================= */
+
+        setInterval(
+            getWeather,
+            600000
+        );
+
+    </script>
+
+</body>
+</html>
